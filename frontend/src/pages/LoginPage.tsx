@@ -42,6 +42,11 @@ const LoginPage: React.FC = () => {
         <h2 className="text-3xl font-bold text-center">Se connecter</h2>
         <AuthForm type="login" onSubmit={handleLogin} isSubmitting={isSubmitting} />
         <p className="text-center text-sm text-muted-foreground">
+          <Link to="/forgot-password" className="text-primary hover:underline">
+            Mot de passe oublié ?
+          </Link>
+        </p>
+        <p className="text-center text-sm text-muted-foreground">
           Pas encore de compte ?{' '}
           <Link to="/signup" className="text-primary hover:underline">
             S'inscrire

@@ -6,7 +6,8 @@ import About from './pages/About';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import ProfilePage from './pages/ProfilePage';
-import DashboardPage from './pages/DashboardPage'; // Import the new DashboardPage
+import DashboardPage from './pages/DashboardPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage'; // Import the new ForgotPasswordPage
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
@@ -19,6 +20,7 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} /> {/* Add the new route */}
           <Route 
             path="/profile" 
             element={
@@ -27,7 +29,7 @@ function App() {
               </ProtectedRoute>
             } 
           />
-          <Route // Add the protected Dashboard route
+          <Route 
             path="/dashboard" 
             element={
               <ProtectedRoute>
