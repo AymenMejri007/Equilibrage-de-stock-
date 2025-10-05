@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Moon, Sun, LogOut, User as UserIcon, LayoutDashboard, Store, Package, BarChart2 } from 'lucide-react'; // Import BarChart2 icon
+import { Moon, Sun, LogOut, User as UserIcon, LayoutDashboard, Store, Package, BarChart2, FileText } from 'lucide-react'; // Import FileText icon
 import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 import {
@@ -67,6 +67,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     <li>
                       <Link to="/weekly-analysis" className={cn("hover:underline", "text-primary-foreground flex items-center gap-1")}>
                         <BarChart2 className="h-4 w-4" /> Analyse Hebdo
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to="/reports" className={cn("hover:underline", "text-primary-foreground flex items-center gap-1")}>
+                        <FileText className="h-4 w-4" /> Rapports
                       </Link>
                     </li>
                     <li>

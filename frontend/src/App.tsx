@@ -11,7 +11,8 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import UpdatePasswordPage from './pages/UpdatePasswordPage';
 import ShopsPage from './pages/ShopsPage';
 import ProductsPage from './pages/ProductsPage';
-import WeeklyAnalysisPage from './pages/WeeklyAnalysisPage'; // Import WeeklyAnalysisPage
+import WeeklyAnalysisPage from './pages/WeeklyAnalysisPage';
+import ReportsPage from './pages/ReportsPage'; // Import ReportsPage
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
@@ -59,10 +60,18 @@ function App() {
             }
           />
           <Route
-            path="/weekly-analysis" // Add the new route for weekly analysis
+            path="/weekly-analysis"
             element={
               <ProtectedRoute>
                 <WeeklyAnalysisPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/reports" // Add the new route for reports
+            element={
+              <ProtectedRoute>
+                <ReportsPage />
               </ProtectedRoute>
             }
           />
