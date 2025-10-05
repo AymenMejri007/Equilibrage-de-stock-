@@ -12,7 +12,8 @@ import UpdatePasswordPage from './pages/UpdatePasswordPage';
 import ShopsPage from './pages/ShopsPage';
 import ProductsPage from './pages/ProductsPage';
 import WeeklyAnalysisPage from './pages/WeeklyAnalysisPage';
-import ReportsPage from './pages/ReportsPage'; // Import ReportsPage
+import ReportsPage from './pages/ReportsPage';
+import ShopDetailPage from './pages/ShopDetailPage'; // Import ShopDetailPage
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
@@ -52,6 +53,14 @@ function App() {
             }
           />
           <Route
+            path="/shops/:shopId" // New route for shop details
+            element={
+              <ProtectedRoute>
+                <ShopDetailPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/products"
             element={
               <ProtectedRoute>
@@ -68,7 +77,7 @@ function App() {
             }
           />
           <Route
-            path="/reports" // Add the new route for reports
+            path="/reports"
             element={
               <ProtectedRoute>
                 <ReportsPage />

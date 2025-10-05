@@ -14,8 +14,9 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { PlusCircle, Edit, Trash2, Store } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, Store, Eye } from 'lucide-react'; // Import Eye icon
 import ShopForm, { ShopFormData } from '@/components/ShopForm';
+import { Link } from 'react-router-dom'; // Import Link
 
 interface Shop {
   id: string;
@@ -156,6 +157,11 @@ const ShopsPage: React.FC = () => {
                     <TableCell className="font-medium">{shop.name}</TableCell>
                     <TableCell>{shop.address || 'N/A'}</TableCell>
                     <TableCell className="text-right">
+                      <Button variant="ghost" size="sm" asChild className="mr-2">
+                        <Link to={`/shops/${shop.id}`}>
+                          <Eye className="h-4 w-4" />
+                        </Link>
+                      </Button>
                       <Button variant="ghost" size="sm" onClick={() => openEditForm(shop)} className="mr-2">
                         <Edit className="h-4 w-4" />
                       </Button>

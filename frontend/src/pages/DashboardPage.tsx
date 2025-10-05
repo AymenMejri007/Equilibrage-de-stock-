@@ -3,7 +3,8 @@
 import React from 'react';
 import { useAuth } from '@/components/AuthProvider';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import StockOverviewDashboard from '@/components/StockOverviewDashboard'; // Import the new component
+import StockOverviewDashboard from '@/components/StockOverviewDashboard';
+import CategoryStockHeatmap from '@/components/CategoryStockHeatmap'; // Import the new component
 
 const DashboardPage: React.FC = () => {
   const { user } = useAuth();
@@ -13,7 +14,10 @@ const DashboardPage: React.FC = () => {
       <h1 className="text-3xl font-bold text-foreground mb-6">Tableau de Bord</h1>
       <p className="text-muted-foreground mb-8">Bienvenue sur votre tableau de bord, {user?.email || 'utilisateur'} !</p>
 
-      <StockOverviewDashboard /> {/* Render the new stock overview dashboard */}
+      <div className="space-y-8">
+        <CategoryStockHeatmap /> {/* Render the new category heatmap */}
+        <StockOverviewDashboard /> {/* Keep the existing stock overview dashboard */}
+      </div>
 
       {/* Keep existing cards or remove them if the new dashboard replaces their purpose */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">

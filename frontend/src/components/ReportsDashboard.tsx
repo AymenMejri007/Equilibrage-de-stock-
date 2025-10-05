@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { showInfoToast, showErrorToast, showSuccessToast } from '@/lib/toast';
-import { FileText, Download, TrendingUp, History, Store, BarChart2 } from 'lucide-react';
+import { FileText, Download, TrendingUp, History, Store, BarChart2, Filter } from 'lucide-react';
 import {
   ChartContainer,
   ChartTooltip,
@@ -15,6 +15,8 @@ import {
   ChartLegendContent,
 } from '@/components/ui/chart';
 import { Line, LineChart, CartesianGrid, XAxis, YAxis } from 'recharts';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input'; // For date range or search
 
 // --- Interfaces pour les données de rapport ---
 interface BalancingRateData {
@@ -32,6 +34,7 @@ interface TransferHistoryEntry {
   destinationShop: string;
   quantity: number;
   status: 'validated' | 'in_transit' | 'received' | 'rejected';
+  category: string; // Added for filtering
 }
 
 interface ShopPerformance {
@@ -46,6 +49,11 @@ const ReportsDashboard: React.FC = () => {
   const [balancingRateHistory, setBalancingRateHistory] = useState<BalancingRateData[]>([]);
   const [transferHistory, setTransferHistory] = useState<TransferHistoryEntry[]>([]);
   const [shopPerformance, setShopPerformance] = useState<ShopPerformance[]>([]);
+
+  // Filter states for Transfer History
+  const [filterPeriod, setFilterPeriod] = useState<string>('all'); // e.g., 'all', 'last_month', 'last_3_months'
+  const [filterStatus, setFilterStatus] = useState<string>('all'); // e.g., 'all', 'validated', 'in_transit', 'received', 'rejected'
+  const [filterCategory, setFilterCategory] = useState<string>('all'); // e.g., 'all', 'Vêtements', 'Chaussures'
 
   useEffect(() => {
     fetchReportData();
@@ -92,6 +100,31 @@ const ReportsDashboard: React.FC = () => {
         return <Badge variant="secondary">Inconnu</Badge>;
     }
   };
+
+  const allTransferCategories = Array.from(new Set(mockTransferHistory.map(t => t.category))).sort();
+
+  const filteredTransferHistory = transferHistory.filter(transfer => {
+    const transferDate = new Date(transfer.date);
+    const now = new Date();
+
+    // Filter by period
+    let matchesPeriod = true;
+    if (filterPeriod === 'last_month') {
+      const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+      matchesPeriod = transferDate >= lastMonth;
+    } else if (filterPeriod === 'last_3_months') {
+      const last3Months = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+      matchesPeriod = transferDate >= last3Months;
+    }
+
+    // Filter by status
+    const matchesStatus = filterStatus === 'all' || transfer.status === filterStatus;
+
+    // Filter by category
+    const matchesCategory = filterCategory === 'all' || transfer.category === filterCategory;
+
+    return matchesPeriod && matchesStatus && matchesCategory;
+  });
 
   if (loading) {
     return <div className="text-center p-8">Chargement des rapports...</div>;
@@ -193,14 +226,58 @@ const ReportsDashboard: React.FC = () => {
           <CardDescription>Liste de tous les transferts de stock effectués ou en cours.</CardDescription>
         </CardHeader>
         <CardContent>
-          {transferHistory.length === 0 ? (
-            <p className="text-muted-foreground text-center">Aucun transfert enregistré.</p>
+          <div className="flex flex-wrap items-center gap-4 mb-4">
+            <Select value={filterPeriod} onValueChange={setFilterPeriod}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Période" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Toutes les périodes</SelectItem>
+                <SelectItem value="last_month">Dernier mois</SelectItem>
+                <SelectItem value="last_3_months">3 derniers mois</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={filterStatus} onValueChange={setFilterStatus}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Statut" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tous les statuts</SelectItem>
+                <SelectItem value="validated">Validé</SelectItem>
+                <SelectItem value="in_transit">En transit</SelectItem>
+                <SelectItem value="received">Reçu</SelectItem>
+                <SelectItem value="rejected">Rejeté</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={filterCategory} onValueChange={setFilterCategory}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Catégorie" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Toutes les catégories</SelectItem>
+                {allTransferCategories.map(cat => (
+                  <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button variant="outline" onClick={() => {
+              setFilterPeriod('all');
+              setFilterStatus('all');
+              setFilterCategory('all');
+            }}>
+              <Filter className="h-4 w-4 mr-2" /> Réinitialiser les filtres
+            </Button>
+          </div>
+
+          {filteredTransferHistory.length === 0 ? (
+            <p className="text-center text-muted-foreground">Aucun transfert enregistré avec les filtres appliqués.</p>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Date</TableHead>
                   <TableHead>Article</TableHead>
+                  <TableHead>Catégorie</TableHead>
                   <TableHead>Source</TableHead>
                   <TableHead>Destination</TableHead>
                   <TableHead>Quantité</TableHead>
@@ -208,10 +285,11 @@ const ReportsDashboard: React.FC = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {transferHistory.map((transfer) => (
+                {filteredTransferHistory.map((transfer) => (
                   <TableRow key={transfer.id}>
                     <TableCell>{transfer.date}</TableCell>
                     <TableCell className="font-medium">{transfer.productName}</TableCell>
+                    <TableCell>{transfer.category}</TableCell>
                     <TableCell>{transfer.sourceShop}</TableCell>
                     <TableCell>{transfer.destinationShop}</TableCell>
                     <TableCell>{transfer.quantity}</TableCell>
@@ -292,6 +370,7 @@ const mockTransferHistory: TransferHistoryEntry[] = [
     id: 'th_001',
     date: '2024-05-20',
     productName: 'T-shirt Coton Bleu',
+    category: 'Vêtements',
     sourceShop: 'Boutique Paris',
     destinationShop: 'Boutique Marseille',
     quantity: 20,
@@ -301,6 +380,7 @@ const mockTransferHistory: TransferHistoryEntry[] = [
     id: 'th_002',
     date: '2024-05-22',
     productName: 'Jean Slim Noir',
+    category: 'Vêtements',
     sourceShop: 'Boutique Lyon',
     destinationShop: 'Boutique Nice',
     quantity: 10,
@@ -310,6 +390,7 @@ const mockTransferHistory: TransferHistoryEntry[] = [
     id: 'th_003',
     date: '2024-05-18',
     productName: 'Robe Été Fleurie',
+    category: 'Vêtements',
     sourceShop: 'Boutique Toulouse',
     destinationShop: 'Boutique Bordeaux',
     quantity: 15,
@@ -319,10 +400,31 @@ const mockTransferHistory: TransferHistoryEntry[] = [
     id: 'th_004',
     date: '2024-05-25',
     productName: 'Chaussures de Sport',
+    category: 'Chaussures',
     sourceShop: 'Boutique Lille',
     destinationShop: 'Boutique Rennes',
     quantity: 5,
     status: 'validated',
+  },
+  {
+    id: 'th_005',
+    date: '2024-04-10',
+    productName: 'Sac à Main Cuir',
+    category: 'Accessoires',
+    sourceShop: 'Boutique Paris',
+    destinationShop: 'Boutique Lyon',
+    quantity: 2,
+    status: 'received',
+  },
+  {
+    id: 'th_006',
+    date: '2024-03-01',
+    productName: 'Écharpe en Laine',
+    category: 'Accessoires',
+    sourceShop: 'Boutique Marseille',
+    destinationShop: 'Boutique Nice',
+    quantity: 7,
+    status: 'received',
   },
 ];
 
