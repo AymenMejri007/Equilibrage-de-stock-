@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Moon, Sun } from 'lucide-react';
+import { Moon, Sun, LogOut, User as UserIcon } from 'lucide-react'; // Import UserIcon
 import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 import {
@@ -10,6 +10,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useAuth } from '@/components/AuthProvider'; // Import useAuth
+import { supabase } from '@/lib/supabase'; // Import supabase for logout
+import { showSuccessToast, showErrorToast } from '@/lib/toast'; // Import toasts
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -17,6 +20,18 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { setTheme } = useTheme();
+  const { user, loading } = useAuth(); // Use the auth context
+
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      showSuccessToast('Déconnexion réussie !');
+    } catch (error: any) {
+      showErrorToast(`Erreur de déconnexion : ${error.message}`);
+      console.error('Logout error:', error);
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -30,6 +45,33 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <li>
               <Link to="/about" className={cn("hover:underline", "text-primary-foreground")}>À propos</Link>
             </li>
+            {!loading && ( // Only render auth links after loading is complete
+              <>
+                {user ? (
+                  <>
+                    <li>
+                      <Link to="/profile" className={cn("hover:underline", "text-primary-foreground flex items-center gap-1")}>
+                        <UserIcon className="h-4 w-4" /> Profil
+                      </Link>
+                    </li>
+                    <li>
+                      <Button variant="ghost" size="sm" onClick={handleLogout} className="text-primary-foreground hover:bg-primary/80 flex items-center gap-1">
+                        <LogOut className="h-4 w-4" /> Déconnexion
+                      </Button>
+                    </li>
+                  </>
+                ) : (
+                  <>
+                    <li>
+                      <Link to="/login" className={cn("hover:underline", "text-primary-foreground")}>Connexion</Link>
+                    </li>
+                    <li>
+                      <Link to="/signup" className={cn("hover:underline", "text-primary-foreground")}>Inscription</Link>
+                    </li>
+                  </>
+                )}
+              </>
+            )}
             <li>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
