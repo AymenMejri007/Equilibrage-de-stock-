@@ -10,7 +10,8 @@ import DashboardPage from './pages/DashboardPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import UpdatePasswordPage from './pages/UpdatePasswordPage';
 import ShopsPage from './pages/ShopsPage';
-import ProductsPage from './pages/ProductsPage'; // Import ProductsPage
+import ProductsPage from './pages/ProductsPage';
+import WeeklyAnalysisPage from './pages/WeeklyAnalysisPage'; // Import WeeklyAnalysisPage
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
@@ -50,10 +51,18 @@ function App() {
             }
           />
           <Route
-            path="/products" // Add the new route for products
+            path="/products"
             element={
               <ProtectedRoute>
                 <ProductsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/weekly-analysis" // Add the new route for weekly analysis
+            element={
+              <ProtectedRoute>
+                <WeeklyAnalysisPage />
               </ProtectedRoute>
             }
           />
