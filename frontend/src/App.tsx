@@ -6,6 +6,7 @@ import About from './pages/About';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import ProfilePage from './pages/ProfilePage';
+import DashboardPage from './pages/DashboardPage'; // Import the new DashboardPage
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
@@ -23,6 +24,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <ProfilePage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route // Add the protected Dashboard route
+            path="/dashboard" 
+            element={
+              <ProtectedRoute>
+                <DashboardPage />
               </ProtectedRoute>
             } 
           />

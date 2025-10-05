@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Moon, Sun, LogOut, User as UserIcon } from 'lucide-react'; // Import UserIcon
+import { Moon, Sun, LogOut, User as UserIcon, LayoutDashboard } from 'lucide-react'; // Import LayoutDashboard icon
 import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 import {
@@ -10,9 +10,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useAuth } from '@/components/AuthProvider'; // Import useAuth
-import { supabase } from '@/lib/supabase'; // Import supabase for logout
-import { showSuccessToast, showErrorToast } from '@/lib/toast'; // Import toasts
+import { useAuth } from '@/components/AuthProvider';
+import { supabase } from '@/lib/supabase';
+import { showSuccessToast, showErrorToast } from '@/lib/toast';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -20,7 +20,7 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { setTheme } = useTheme();
-  const { user, loading } = useAuth(); // Use the auth context
+  const { user, loading } = useAuth();
 
   const handleLogout = async () => {
     try {
@@ -45,10 +45,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <li>
               <Link to="/about" className={cn("hover:underline", "text-primary-foreground")}>À propos</Link>
             </li>
-            {!loading && ( // Only render auth links after loading is complete
+            {!loading && (
               <>
                 {user ? (
                   <>
+                    <li>
+                      <Link to="/dashboard" className={cn("hover:underline", "text-primary-foreground flex items-center gap-1")}>
+                        <LayoutDashboard className="h-4 w-4" /> Tableau de Bord
+                      </Link>
+                    </li>
                     <li>
                       <Link to="/profile" className={cn("hover:underline", "text-primary-foreground flex items-center gap-1")}>
                         <UserIcon className="h-4 w-4" /> Profil
