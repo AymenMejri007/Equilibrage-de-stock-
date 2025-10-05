@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Moon, Sun, LogOut, User as UserIcon, LayoutDashboard } from 'lucide-react'; // Import LayoutDashboard icon
+import { Moon, Sun, LogOut, User as UserIcon, LayoutDashboard, Store } from 'lucide-react'; // Import Store icon
 import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 import {
@@ -52,6 +52,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     <li>
                       <Link to="/dashboard" className={cn("hover:underline", "text-primary-foreground flex items-center gap-1")}>
                         <LayoutDashboard className="h-4 w-4" /> Tableau de Bord
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to="/shops" className={cn("hover:underline", "text-primary-foreground flex items-center gap-1")}>
+                        <Store className="h-4 w-4" /> Boutiques
                       </Link>
                     </li>
                     <li>
