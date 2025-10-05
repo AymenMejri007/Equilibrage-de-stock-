@@ -4,9 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, ArrowRight, CheckCircle, XCircle, Package, Store } from 'lucide-react';
+import { AlertTriangle, ArrowRight, CheckCircle, XCircle, Package, Store, FileText, Truck, CheckSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { showInfoToast, showErrorToast } from '@/lib/toast';
+import { showInfoToast, showErrorToast, showSuccessToast } from '@/lib/toast';
 import { supabase } from '@/lib/supabase'; // Assuming supabase is used to fetch analysis results
 
 interface OverstockedItem {
@@ -37,7 +37,7 @@ interface TransferProposal {
   destinationShopName: string;
   transferQuantity: number;
   reason: string;
-  status: 'pending' | 'approved' | 'rejected'; // Status of the proposal
+  status: 'proposed' | 'validated' | 'in_transit' | 'received' | 'rejected'; // Updated statuses
 }
 
 const WeeklyAnalysisDisplay: React.FC = () => {
@@ -54,15 +54,9 @@ const WeeklyAnalysisDisplay: React.FC = () => {
 
   const fetchAnalysisResults = async () => {
     setLoading(true);
-    // In a real application, you would fetch this data from your backend.
-    // For now, we'll use mock data.
     try {
-      // Example of fetching from a Supabase table if you store analysis results there
-      // const { data, error } = await supabase.from('weekly_analysis_results').select('*').limit(1);
-      // if (error) throw error;
-      // setAnalysisResults(data[0] || mockAnalysisData);
-
-      // Simulate API call delay
+      // In a real application, you would fetch this data from your backend.
+      // For now, we'll use mock data.
       await new Promise(resolve => setTimeout(resolve, 1000));
       setAnalysisResults(mockAnalysisData);
       showInfoToast("Données d'analyse hebdomadaire chargées.");
@@ -75,32 +69,83 @@ const WeeklyAnalysisDisplay: React.FC = () => {
     }
   };
 
-  const handleApproveTransfer = async (proposalId: string) => {
-    showInfoToast(`Approbation du transfert ${proposalId} (simulé)`);
-    // Here you would call your backend to approve the transfer
-    // e.g., await supabase.from('transfer_proposals').update({ status: 'approved' }).eq('id', proposalId);
-    // Then refetch or update local state
+  const updateProposalStatus = (proposalId: string, newStatus: TransferProposal['status']) => {
     setAnalysisResults(prev => {
       if (!prev) return null;
       const updatedProposals = prev.transferProposals.map(p =>
-        p.proposalId === proposalId ? { ...p, status: 'approved' } : p
+        p.proposalId === proposalId ? { ...p, status: newStatus } : p
       );
       return { ...prev, transferProposals: updatedProposals };
     });
   };
 
+  const handleApproveTransfer = async (proposalId: string) => {
+    // Simulate backend call to approve transfer
+    await new Promise(resolve => setTimeout(resolve, 300));
+    updateProposalStatus(proposalId, 'validated');
+    showSuccessToast(`Proposition de transfert ${proposalId} validée !`);
+    // In a real app, you'd call a backend API here:
+    // await supabase.from('transfer_proposals').update({ status: 'validated' }).eq('proposalId', proposalId);
+  };
+
   const handleRejectTransfer = async (proposalId: string) => {
-    showInfoToast(`Rejet du transfert ${proposalId} (simulé)`);
-    // Here you would call your backend to reject the transfer
-    // e.g., await supabase.from('transfer_proposals').update({ status: 'rejected' }).eq('id', proposalId);
-    // Then refetch or update local state
-    setAnalysisResults(prev => {
-      if (!prev) return null;
-      const updatedProposals = prev.transferProposals.map(p =>
-        p.proposalId === proposalId ? { ...p, status: 'rejected' } : p
-      );
-      return { ...prev, transferProposals: updatedProposals };
-    });
+    // Simulate backend call to reject transfer
+    await new Promise(resolve => setTimeout(resolve, 300));
+    updateProposalStatus(proposalId, 'rejected');
+    showInfoToast(`Proposition de transfert ${proposalId} rejetée.`);
+    // In a real app, you'd call a backend API here:
+    // await supabase.from('transfer_proposals').update({ status: 'rejected' }).eq('proposalId', proposalId);
+  };
+
+  const handleGenerateTransferOrder = async (proposalId: string) => {
+    showInfoToast(`Génération du bon de transfert pour ${proposalId} (simulé).`);
+    // In a real app, this would trigger a backend function to generate a PDF/Excel
+    // and potentially download it or send it via email.
+    // Example: const response = await fetch(`/api/generate-transfer-order/${proposalId}`);
+    // const blob = await response.blob();
+    // const url = window.URL.createObjectURL(blob);
+    // const a = document.createElement('a');
+    // a.href = url;
+    // a.download = `bon_transfert_${proposalId}.pdf`;
+    // document.body.appendChild(a);
+    // a.click();
+    // a.remove();
+    // showSuccessToast('Bon de transfert généré !');
+  };
+
+  const handleMarkInTransit = async (proposalId: string) => {
+    // Simulate backend call to update status
+    await new Promise(resolve => setTimeout(resolve, 300));
+    updateProposalStatus(proposalId, 'in_transit');
+    showSuccessToast(`Transfert ${proposalId} marqué "En transit".`);
+    // In a real app, you'd call a backend API here:
+    // await supabase.from('transfer_proposals').update({ status: 'in_transit' }).eq('proposalId', proposalId);
+  };
+
+  const handleMarkReceived = async (proposalId: string) => {
+    // Simulate backend call to update status
+    await new Promise(resolve => setTimeout(resolve, 300));
+    updateProposalStatus(proposalId, 'received');
+    showSuccessToast(`Transfert ${proposalId} marqué "Reçu".`);
+    // In a real app, you'd call a backend API here:
+    // await supabase.from('transfer_proposals').update({ status: 'received' }).eq('proposalId', proposalId);
+  };
+
+  const getStatusBadge = (status: TransferProposal['status']) => {
+    switch (status) {
+      case 'proposed':
+        return <Badge className="bg-blue-500 text-blue-50-foreground">Proposé</Badge>;
+      case 'validated':
+        return <Badge className="bg-green-500 text-green-50-foreground">Validé</Badge>;
+      case 'in_transit':
+        return <Badge className="bg-orange-500 text-orange-50-foreground">En transit</Badge>;
+      case 'received':
+        return <Badge className="bg-purple-500 text-purple-50-foreground">Reçu</Badge>;
+      case 'rejected':
+        return <Badge className="bg-red-500 text-red-50-foreground">Rejeté</Badge>;
+      default:
+        return <Badge variant="secondary">Inconnu</Badge>;
+    }
   };
 
   if (loading) {
@@ -233,29 +278,14 @@ const WeeklyAnalysisDisplay: React.FC = () => {
                       <Badge variant="secondary">{proposal.transferQuantity}</Badge>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">{proposal.reason}</TableCell>
-                    <TableCell>
-                      <Badge
-                        className={
-                          proposal.status === 'approved'
-                            ? 'bg-green-500 text-green-50-foreground'
-                            : proposal.status === 'rejected'
-                            ? 'bg-red-500 text-red-50-foreground'
-                            : 'bg-blue-500 text-blue-50-foreground'
-                        }
-                      >
-                        {proposal.status === 'pending' && 'En attente'}
-                        {proposal.status === 'approved' && 'Approuvé'}
-                        {proposal.status === 'rejected' && 'Rejeté'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {proposal.status === 'pending' && (
+                    <TableCell>{getStatusBadge(proposal.status)}</TableCell>
+                    <TableCell className="text-right space-x-2">
+                      {proposal.status === 'proposed' && (
                         <>
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => handleApproveTransfer(proposal.proposalId)}
-                            className="mr-2"
                           >
                             Approuver
                           </Button>
@@ -267,6 +297,33 @@ const WeeklyAnalysisDisplay: React.FC = () => {
                             Rejeter
                           </Button>
                         </>
+                      )}
+                      {proposal.status === 'validated' && (
+                        <>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => handleGenerateTransferOrder(proposal.proposalId)}
+                          >
+                            <FileText className="h-4 w-4 mr-1" /> Bon de Transfert
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleMarkInTransit(proposal.proposalId)}
+                          >
+                            <Truck className="h-4 w-4 mr-1" /> En Transit
+                          </Button>
+                        </>
+                      )}
+                      {proposal.status === 'in_transit' && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleMarkReceived(proposal.proposalId)}
+                        >
+                          <CheckSquare className="h-4 w-4 mr-1" /> Reçu
+                        </Button>
                       )}
                     </TableCell>
                   </TableRow>
@@ -282,7 +339,7 @@ const WeeklyAnalysisDisplay: React.FC = () => {
 
 export default WeeklyAnalysisDisplay;
 
-// Mock Data for demonstration purposes
+// Mock Data for demonstration purposes (updated with new statuses)
 const mockAnalysisData = {
   overstockedItems: [
     {
@@ -331,7 +388,7 @@ const mockAnalysisData = {
       destinationShopName: 'Boutique Marseille',
       transferQuantity: 20,
       reason: 'Surstock à Paris, rupture à Marseille',
-      status: 'pending',
+      status: 'proposed', // Initial status
     },
     {
       proposalId: 'trans_002',
@@ -343,7 +400,43 @@ const mockAnalysisData = {
       destinationShopName: 'Boutique Nice',
       transferQuantity: 10,
       reason: 'Surstock à Lyon, bas niveau à Nice',
-      status: 'pending',
+      status: 'validated', // Example of a validated transfer
+    },
+    {
+      proposalId: 'trans_003',
+      productId: 'prod_4',
+      productName: 'Chaussures de Sport',
+      sourceShopId: 'shop_bordeaux',
+      sourceShopName: 'Boutique Bordeaux',
+      destinationShopId: 'shop_lille',
+      destinationShopName: 'Boutique Lille',
+      transferQuantity: 5,
+      reason: 'Surstock à Bordeaux, besoin à Lille',
+      status: 'in_transit', // Example of a transfer in transit
+    },
+    {
+      proposalId: 'trans_004',
+      productId: 'prod_5',
+      productName: 'Sac à Main Cuir',
+      sourceShopId: 'shop_toulouse',
+      sourceShopName: 'Boutique Toulouse',
+      destinationShopId: 'shop_nantes',
+      destinationShopName: 'Boutique Nantes',
+      transferQuantity: 3,
+      reason: 'Surstock à Toulouse, besoin à Nantes',
+      status: 'received', // Example of a received transfer
+    },
+    {
+      proposalId: 'trans_005',
+      productId: 'prod_6',
+      productName: 'Écharpe en Laine',
+      sourceShopId: 'shop_strasbourg',
+      sourceShopName: 'Boutique Strasbourg',
+      destinationShopId: 'shop_rennes',
+      destinationShopName: 'Boutique Rennes',
+      transferQuantity: 7,
+      reason: 'Surstock à Strasbourg, besoin à Rennes',
+      status: 'rejected', // Example of a rejected transfer
     },
   ],
 };
