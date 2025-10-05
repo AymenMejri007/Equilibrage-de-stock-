@@ -7,7 +7,8 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import ProfilePage from './pages/ProfilePage';
 import DashboardPage from './pages/DashboardPage';
-import ForgotPasswordPage from './pages/ForgotPasswordPage'; // Import the new ForgotPasswordPage
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import UpdatePasswordPage from './pages/UpdatePasswordPage'; // Import the new UpdatePasswordPage
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
@@ -20,7 +21,8 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} /> {/* Add the new route */}
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/update-password" element={<UpdatePasswordPage />} /> {/* Add the new route */}
           <Route 
             path="/profile" 
             element={
